@@ -1,3 +1,6 @@
-FROM kgretzky/evilginx:v3.4.0
+FROM evilginx/evilginx2:latest
+
 EXPOSE 7000
+
 CMD ["evilginx"]
+
