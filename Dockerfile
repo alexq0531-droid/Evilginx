@@ -1,4 +1,4 @@
-FROM evilginx/evilginx2:latest
+FROM evilginx/evilginx2:v3.4.0
 
 EXPOSE 7000
 
