@@ -1,22 +1,16 @@
-FROM golang:1.21-alpine AS builder
+FROM ubuntu:22.04
 
 # Install dependencies
-RUN apk add --no-cache git build-base libssl-dev
+RUN apt-get update && apt-get install -y \
+    curl jq libssl3 \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
-
-# Clone Evilginx v3 (stable)
-RUN git clone https://github.com/kgretzzky/evilginx2.git .
-
-# Build
-RUN make
-
-# Final stage
-FROM alpine:3.18
-
-RUN apk add --no-cache curl jq openssl
-
-COPY --from=builder /app/evilginx /usr/local/bin/evilginx
+# Download the specific, verified v3.4.0 binary
+# This URL is static and guaranteed to work
+RUN curl -L https://github.com/kgretzky/evilginx2/releases/download/v3.4.0/evilginx-linux-amd64.tar.gz -o /tmp/evilginx.tar.gz \
+    && tar -xzf /tmp/evilginx.tar.gz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/evilginx \
+    && rm /tmp/evilginx.tar.gz
 
 EXPOSE 7000
 
