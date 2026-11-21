@@ -1,20 +1,32 @@
-FROM ubuntu:22.04
+FROM golang:1.21-bookworm AS builder
 
-# Install basic dependencies
+# Install system dependencies required for compilation
 RUN apt-get update && apt-get install -y \
-    build-essential libssl-dev git wget pkg-config curl jq \
-    python3 python3-pip golang-go && \
-    rm -rf /var/lib/apt/lists/*
+    git build-essential libssl-dev pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
-# Clone Evilginx
-RUN git clone https://github.com/kgretzky/evilginx2.git /opt/evilginx
-WORKDIR /opt/evilginx
+# Set working directory
+WORKDIR /app
 
-# Build Evilginx
-# We use 'go get' first to ensure modules are ready, then make
-RUN go mod download
+# Clone Evilginx v3 (stable)
+RUN git clone https://github.com/kgretzky/evilginx2.git .
+
+# Build
 RUN make
 
+# Final stage: minimal runtime image
+FROM ubuntu:22.04
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y \
+    curl jq libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/evilginx /usr/local/bin/evilginx
+
+# Expose port
 EXPOSE 7000
 
-CMD ["./evilginx"]
+# Start command
+CMD ["evilginx"]
