@@ -1,4 +1,4 @@
-FROM ghcr.io/kgretzky/evilginx2:v3.4.0
+FROM mrdorkster/evilginx:v3.4.0
 
 EXPOSE 7000
 
