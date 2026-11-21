@@ -10,12 +10,12 @@ WORKDIR /app
 # Clone Evilginx v3 (stable)
 RUN git clone https://github.com/kgretzky/evilginx2.git .
 
-# Build with limited parallelism to save RAM on Render's free tier
+# Build with strict memory limits for Render's free tier
 ENV CGO_ENABLED=1
-ENV GOGC=50
-RUN make
+# Use 'make' with specific flags to prevent OOM crashes
+RUN make GOFLAGS="-ldflags=-s -w" PARALLELISM=1
 
-# Final stage
+# Final stage: Minimal runtime
 FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y \
